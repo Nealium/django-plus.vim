@@ -91,10 +91,10 @@ endfunction
 function! s:init_python() abort
   let s:pydo = ''
   if has('python3')
-    let s:pydo = 'py3do'
+    let s:pydo = 'py3'
     execute 'py3file' s:template_finder_script
   elseif has('python')
-    let s:pydo = 'pydo'
+    let s:pydo = 'py'
     execute 'pyfile' s:template_finder_script
   endif
 endfunction
