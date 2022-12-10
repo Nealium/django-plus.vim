@@ -22,7 +22,7 @@ function! s:get_completions() abort
   let out = {}
 
   " This is really stupid, but whatever.
-  for item in split(system('python "'.s:completion_script.'" 2>/dev/null'), "\n")
+  for item in split(system('python "'.s:completion_script.'"'), "\n")
     if item =~# '^##'
       if !empty(group) && !empty(sig)
         call add(out[group], [sig, substitute(doc, '\\\\n', "\n", 'g')])
@@ -116,7 +116,7 @@ function! s:get_templates() abort
     " for item in apppaths
     "   execute s:pydo 'add_app_path("'.item.'")'
     " endfor
-    execute s:pydo 'djangoplus_find_templates("'.getcwd().'", "'.apppaths.'")'
+    execute s:pydo 'djangoplus_find_templates("'.substitute(getcwd(), '\', '\\\\', "g").'", "'.substitute(apppaths, '\', '\\\\', "g").'")'
   else
     if has('python3') || has('python')
       let s:template_cache = split(system('python "'.s:template_finder_script.'" "'.getcwd().'"'), "\n")
