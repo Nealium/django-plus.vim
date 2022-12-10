@@ -1,3 +1,7 @@
+if !get(g:, 'django_html_sytax', 1)
+  finish
+endif
+
 let s:old = b:current_syntax
 unlet b:current_syntax
 syntax include @HTML $VIMRUNTIME/syntax/html.vim

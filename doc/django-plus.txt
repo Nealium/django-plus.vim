@@ -81,6 +81,24 @@ g:django_impsort_top	If enabled, configures |impsort| to sort Django
 
 			Default: `1`
 
+						      *g:django_pydo_filesearch*
+g:django_pydo_filesearch
+
+			If enabled, use Vim's pydo command to run the find
+			template command. If disabled, use a system call.
+
+			Default: `1`
+
+						      *g:django_python_sytax*
+g:django_python_sytax	
+			If enabled, Python syntax rules will be added
+
+			Default: `1`
+						      *g:django_html_sytax*
+g:django_html_sytax	
+			If enabled, Template syntax rules will be added
+
+ 			Default: `1`
 
 ==============================================================================
 COMPLETIONS                                           *django-plus-completions*
