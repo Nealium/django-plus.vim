@@ -173,35 +173,37 @@ endfunction
 
 
 " Detect Django related files
-function! djangoplus#detect#filetype(filename) abort
-  if empty(a:filename)
+function! djangoplus#detect#filetype() abort
+  let l:filename = expand('%:p')
+
+  if empty(l:filename)
     return
   endif
 
-  let is_django = s:simple_django_project(a:filename)
+  let is_django = s:simple_django_project(l:filename)
   if is_django == -1
     " Since the current directory isn't a Django project, perform a more
     " exhaustive scan.
-    let is_django = s:scan(a:filename, 's:is_django_project')
-          \ || s:scan(a:filename, 's:is_django_app')
+    let is_django = s:scan(l:filename, 's:is_django_project')
+          \ || s:scan(l:filename, 's:is_django_app')
   endif
 
   if is_django
     let b:is_django = 1
-    let filedir = fnamemodify(a:filename, ':h')
+    let filedir = fnamemodify(l:filename, ':h')
 
-    autocmd! CursorHold <buffer> call djangoplus#clear_template_cache()
+    " autocmd! CursorHold <buffer> call djangoplus#clear_template_cache()
 
-    if a:filename =~? '\.html\?$'
+    if l:filename =~? '\.html\?$'
       setfiletype htmldjango
-    elseif s:is_django_settings(a:filename)
+    elseif s:is_django_settings(l:filename)
       setfiletype python
       let b:is_django_settings = 1
-    elseif a:filename =~# '\.py$'
+    elseif l:filename =~# '\.py$'
       setfiletype python
     else
       for pat in get(g:, 'django_filetypes', [])
-        if a:filename =~# glob2regpat(pat)
+        if l:filename =~# glob2regpat(pat)
           let bft = &l:filetype
           if !empty(bft)
             let bft .= '.django'
