@@ -111,14 +111,14 @@ function! s:get_templates() abort
 
   let apppaths = join(map(copy(djangoplus#get_completions('apppaths')), 'v:val[0]'), ',')
 
-  if !empty(s:pydo)
+  if !empty(s:pydo) && get(g:, 'django_pydo_filesearch', 1)
     " execute s:pydo 'app_paths = []'
     " for item in apppaths
     "   execute s:pydo 'add_app_path("'.item.'")'
     " endfor
     execute s:pydo 'djangoplus_find_templates("'.getcwd().'", "'.apppaths.'")'
   else
-    if s:template_shell_find_enabled
+    if has('python3') || has('python')
       let s:template_cache = split(system('python "'.s:template_finder_script.'" "'.getcwd().'"'), "\n")
     else
       let s:template_cache = []

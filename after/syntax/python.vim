@@ -1,4 +1,4 @@
-if !exists('b:is_django')
+if !exists('b:is_django') || !get(g:, 'django_python_sytax', 1)
   finish
 endif
 
