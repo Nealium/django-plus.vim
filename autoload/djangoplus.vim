@@ -1,11 +1,12 @@
 let s:completion_script = expand('<sfile>:p:h:h').'/bin/completions.py'
 let s:template_finder_script = expand('<sfile>:p:h:h').'/bin/template_finder.py'
+let s:static_finder_script = expand('<sfile>:p:h:h').'/bin/static_finder.py'
 let s:default_tags = [
       \ 'block', 'cache', 'for', 'if', 'with', 'autoescape',
       \ 'comment', 'filter', 'spaceless', 'verbatim']
 let s:default_tags_pat = join(s:default_tags, '\|')
 let s:midtags = '\(empty\|else\|elif\)'
-let s:template_shell_find_enabled = executable('python')
+let s:shell_find_enabled = executable('python')
 let s:template_functions = join([
       \ 'render([^,]\+,',
       \ 'get_template(',
@@ -13,7 +14,6 @@ let s:template_functions = join([
       \ 'render_to_response(',
       \ 'template_name\s*=',
       \ ], '\|')
-
 
 function! s:get_completions() abort
   let group = ''
@@ -93,9 +93,11 @@ function! s:init_python() abort
   if has('python3')
     let s:pydo = 'py3do'
     execute 'py3file' s:template_finder_script
+    execute 'py3file' s:static_finder_script
   elseif has('python')
     let s:pydo = 'pydo'
     execute 'pyfile' s:template_finder_script
+    execute 'pyfile' s:static_finder_script
   endif
 endfunction
 
@@ -134,6 +136,44 @@ endfunction
 
 
 function! djangoplus#clear_template_cache() abort
+  unlet! s:template_cache
+endfunction
+
+
+function! s:get_staticfiles() abort
+  if exists('s:staticfiles_cache')
+    return s:staticfiles_cache
+  endif
+
+  if !exists('s:pydo')
+    call s:init_python()
+  endif
+
+  let apppaths = join(map(copy(djangoplus#get_completions('apppaths')), 'v:val[0]'), ',')
+
+  if !empty(s:pydo)
+    " execute s:pydo 'app_paths = []'
+    " for item in apppaths
+    "   execute s:pydo 'add_app_path("'.item.'")'
+    " endfor
+    execute s:pydo 'djangoplus_find_staticfiles("'.getcwd().'", "'.apppaths.'")'
+  else
+    if s:shell_find_enabled
+      let s:staticfiles_cache = split(system('python "'.s:static_finder_script.'" "'.getcwd().'"'), "\n")
+    else
+      let s:staticfiles_cache = []
+    endif
+  endif
+
+  if !exists('s:staticfiles_cache')
+    let s:staticfiles_cache = []
+  endif
+
+  return copy(s:staticfiles_cache)
+endfunction
+
+
+function! djangoplus#clear_staticfiles_cache() abort
   unlet! s:template_cache
 endfunction
 
@@ -192,6 +232,9 @@ function! djangoplus#complete(findstart, base) abort
       elseif line =~# '{% \%(include\|extends\)\>\s\+[''"]\zs\f*$'
         let idx = match(line, '\f*$')
         let s:kind = 'tpl'
+      elseif line =~# '{% \%(static\)\>\s\+[''"]\zs\f*$'
+        let idx = match(line, '\f*$')
+        let s:kind = 'sta'
       endif
     endif
 
@@ -217,6 +260,20 @@ function! djangoplus#complete(findstart, base) abort
     if s:kind == 'tpl'
       let templates = s:get_templates()
       for path in templates
+        if stridx(path, a:base) == 0
+          call add(completions, {
+                \ 'word': path,
+                \ 'abbr': path,
+                \ 'info': path,
+                \ 'icase': 0,
+                \ 'kind': s:kind,
+                \ 'menu': '[Dj+]',
+                \ })
+        endif
+      endfor
+    elseif s:kind == 'sta'
+      let staticfiles = s:get_staticfiles()
+      for path in staticfiles
         if stridx(path, a:base) == 0
           call add(completions, {
                 \ 'word': path,

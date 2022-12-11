@@ -79,6 +79,17 @@ except:
     pass
 
 try:
+    from django.conf import settings as djsettings
+    stadirs = set(getattr(djsettings, 'STATICFILES_DIRS', []))
+    if not isinstance(stadirs, set):
+        stadirs = set()
+
+    for stadir in stadirs:
+        print('##sta|%s' % stadir)
+except:
+    pass
+
+try:
     from django.template import library
     from django.template.backends import django as tplbackend
 
