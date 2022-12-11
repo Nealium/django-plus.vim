@@ -6,7 +6,6 @@ let s:default_tags = [
       \ 'comment', 'filter', 'spaceless', 'verbatim']
 let s:default_tags_pat = join(s:default_tags, '\|')
 let s:midtags = '\(empty\|else\|elif\)'
-let s:shell_find_enabled = executable('python')
 let s:template_functions = join([
       \ 'render([^,]\+,',
       \ 'get_template(',
@@ -156,9 +155,9 @@ function! s:get_staticfiles() abort
     " for item in apppaths
     "   execute s:pydo 'add_app_path("'.item.'")'
     " endfor
-    execute s:pydo 'djangoplus_find_staticfiles("'.getcwd().'", "'.apppaths.'")'
+    execute s:pydo 'djangoplus_find_staticfiles("'.substitute(getcwd(), '\', '\\\\', "g").'", "'.substitute(apppaths, '\', '\\\\', "g").'")'
   else
-    if s:shell_find_enabled
+    if has('python3') || has('python')
       let s:staticfiles_cache = split(system('python "'.s:static_finder_script.'" "'.getcwd().'"'), "\n")
     else
       let s:staticfiles_cache = []

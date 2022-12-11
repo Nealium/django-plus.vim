@@ -69,7 +69,7 @@ def djangoplus_find_staticfiles(cwd, app_paths, cmdline=False):
 
     try:
         import vim  # noqa F811
-        vim.command('let s:staticfiles_cache = %s' % repr(templates).replace("u'", "'"))
+        vim.command('let s:staticfiles_cache = %s' % repr(templates).replace("u'", "'").replace("\\\\", "/"))
     except ImportError:
         print('\n'.join(templates))
 

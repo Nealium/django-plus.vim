@@ -192,7 +192,8 @@ function! djangoplus#detect#filetype() abort
     let b:is_django = 1
     let filedir = fnamemodify(l:filename, ':h')
 
-    " autocmd! CursorHold <buffer> call djangoplus#clear_template_cache()
+    autocmd! CursorHold <buffer> call djangoplus#clear_template_cache()
+    autocmd! CursorHold <buffer> call djangoplus#clear_staticfiles_cache()
 
     if l:filename =~? '\.html\?$'
       setfiletype htmldjango
