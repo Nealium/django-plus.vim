@@ -9,7 +9,7 @@ exclude_dirs = (
 )
 
 
-def djangoplus_find_templates(cwd, app_paths, cmdline=False):
+def djangoplus_find_staticfiles(cwd, app_paths, cmdline=False):
     templates = set()
     project_paths = []
 
@@ -27,22 +27,22 @@ def djangoplus_find_templates(cwd, app_paths, cmdline=False):
         if path not in app_paths:
             project_paths.append(path)
 
-    template_paths = set()
+    static_paths = set()
     for i, path in enumerate(app_paths):
         if path.startswith('tpl|'):
-            path = path[4:]
+            continue
         elif path.startswith('sta|'):
             path = path[4:]
-        elif os.path.split(path)[-1] == 'templates':
+        elif os.path.split(path)[-1] == 'static':
             pass
         else:
-            path = os.path.join(path, 'templates')
+            path = os.path.join(path, 'static')
             if not os.path.exists(path):
                 path = ''
 
-        if not path or path in template_paths:
+        if not path or path in static_paths:
             continue
-        template_paths.add(path)
+        static_paths.add(path)
 
         for root, dirs, files in os.walk(path):
             directory = root[len(path)+1:]
@@ -54,10 +54,10 @@ def djangoplus_find_templates(cwd, app_paths, cmdline=False):
         for root, dirs, files in os.walk(path):
             dirs[:] = [d for d in dirs if d not in exclude_dirs]
             parts = root.split(os.path.sep)
-            if 'templates' not in parts:
+            if 'static' not in parts:
                 continue
 
-            i = parts.index('templates')
+            i = parts.index('static')
             i += sum(len(x) for x in parts[:i+1]) + 1
             directory = root[i:]
             if directory:
@@ -69,7 +69,7 @@ def djangoplus_find_templates(cwd, app_paths, cmdline=False):
 
     try:
         import vim  # noqa F811
-        vim.command('let s:template_cache = %s' % repr(templates).replace("u'", "'").replace("\\\\", "/"))
+        vim.command('let s:staticfiles_cache = %s' % repr(templates).replace("u'", "'"))
     except ImportError:
         print('\n'.join(templates))
 
@@ -78,4 +78,4 @@ if __name__ == "__main__":
     try:
         import vim  # noqa F401
     except ImportError:
-        djangoplus_find_templates(os.getcwd(), '', 1)
+        djangoplus_find_staticfiles(os.getcwd(), '', 1)
